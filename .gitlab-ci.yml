@@ -1,0 +1,3 @@
+stages:
+  - init
+  - plan
