@@ -1,0 +1,37 @@
+# Fichiers Terraform à ignorer
+.terraform/
+.terraform.lock.hcl
+
+# Fichiers d'état Terraform (sensibles)
+*.tfstate
+*.tfstate.backup
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Variables sensibles
+# terraform.tfvars
+# *.tfvars
+# *.tfvars.json
+
+# Fichiers logs ou temporaires
+*.log
+*.bak
+*.swp
+*.tmp
+
+# Éditeurs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Clés SSH éventuelles
+*.pem
+*.key

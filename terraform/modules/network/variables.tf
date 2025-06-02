@@ -1,7 +1,4 @@
-locals {
-  name_prefix = "${var.project}-${var.env}"
-}
-variable "project" {
+variable "project_name" {
     description = "Name of the project"
     type = string
 }

@@ -17,7 +17,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${locals.name_prefix}-public-${each.key}"
+    Name = "${local.name_prefix}-public-${each.key}"
   }
 }
 
@@ -29,6 +29,6 @@ resource "aws_subnet" "private" {
   availability_zone = each.value.az
 
   tags = {
-    Name = "${locals.name_prefix}-public-${each.key}"
+    Name = "${local.name_prefix}-private-${each.key}"
   }
 }
