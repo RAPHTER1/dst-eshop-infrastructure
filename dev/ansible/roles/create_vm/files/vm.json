@@ -1,0 +1,14 @@
+[
+    {
+        "VM_ID": "9101",
+        "VM_NAME": "k8s-master",
+        "VM_IP_CIDR": "192.168.1.101/24",
+        "VM_CPU": 4,
+        "VM_MEMORY": 4096,
+        "DISK_SIZE": "20G",
+        "STORAGE_NAME": "local-lvm",
+        "BRIDGE": "vmbr0",
+        "GATEWAY": "192.168.1.1",
+        "TEMPLATE_ID": 9000
+    }
+]
