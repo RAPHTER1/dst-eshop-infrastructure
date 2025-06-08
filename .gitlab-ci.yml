@@ -15,10 +15,10 @@ before_script:
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   # On importe la clé privée ...
-  - echo "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE" > ~/.ssh/ansible_proxmox
+  - cp "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE" ~/.ssh/ansible_proxmox
   - chmod 600 ~/.ssh/ansible_proxmox
   # ... puis la clé public pour le cloud-init
-  - echo "$K8S_PROXMOX_PUBLIC_KEY_FILE" > ~/.ssh/k8s_proxmox.pub
+  - cp "$K8S_PROXMOX_PUBLIC_KEY_FILE" ~/.ssh/k8s_proxmox.pub
   - chmod 644 ~/.ssh/k8s_proxmox.pub
 
   # 3) Ajout du nœud Proxmox dans known_hosts (pour que le runner ne pose plus de question)
