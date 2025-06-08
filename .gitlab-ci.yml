@@ -41,6 +41,7 @@ provision:
   stage: provision
   script:
     - ./generate_inventory.sh
+    - cat inventory/proxmox.yml
     - ./ansible.sh
   artifacts:
     untracked: false
