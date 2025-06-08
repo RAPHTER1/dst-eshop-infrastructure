@@ -29,7 +29,7 @@
 - name: Injecter la clé SSH
   become: true
   shell: |
-    printf '%s\n' "$K8S_PROXMOX_PUBLIC_KEY" > /tmp/sshkey_{{ item.key }}.pub
+    printf '%s\n' "$K8S_PROXMOX_PUBLIC_KEY_FILE" > /tmp/sshkey_{{ item.key }}.pub
     /usr/sbin/qm set {{ item.key }} --sshkey /tmp/sshkey_{{ item.key }}.pub
     rm -f /tmp/sshkey_{{ item.key }}.pub
 
