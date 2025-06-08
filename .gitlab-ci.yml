@@ -17,6 +17,11 @@ before_script:
   # On importe la clé privée ...
   - cp "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE" ~/.ssh/ansible_proxmox
   - chmod 600 ~/.ssh/ansible_proxmox
+  - echo ">>> head -3 ~/.ssh/ansible_proxmox"
+  - head -3 ~/.ssh/ansible_proxmox
+  - echo ">>> file ~/.ssh/ansible_proxmox"
+  - file ~/.ssh/ansible_proxmox
+
   # ... puis la clé public pour le cloud-init
   - cp "$K8S_PROXMOX_PUBLIC_KEY_FILE" ~/.ssh/k8s_proxmox.pub
   - chmod 644 ~/.ssh/k8s_proxmox.pub
