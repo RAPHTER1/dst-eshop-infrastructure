@@ -9,6 +9,7 @@ image: debian:12-slim
 before_script:
   - apt-get update -qy
   - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core
+  - cd dev/ansible
 
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
@@ -32,7 +33,7 @@ before_script:
     EOF
   
   # Génération de l'inventaire
-  - envsubst < inventory/proxmox.template.yml > inventory/proxmox.yml
+  - envsubst < dev/ansible/inventory/proxmox.template.yml > inventory/proxmox.yml
 
 provision:
   stage: provision
