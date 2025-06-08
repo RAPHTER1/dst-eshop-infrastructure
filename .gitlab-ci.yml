@@ -29,8 +29,8 @@ before_script:
     cat > .env.local <<EOF
     PROXMOX_HOST_IP=$PROXMOX_HOST_IP
     PROXMOX_HOST_PORT=$PROXMOX_HOST_PORT
-    ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE=~/.ssh/ansible_proxmox
-    K8S_PROXMOX_PUBLIC_KEY_FILE=$(cat ~/.ssh/k8s_proxmox.pub)
+    ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE="~/.ssh/ansible_proxmox"
+    K8S_PROXMOX_PUBLIC_KEY_FILE="~/.ssh/k8s_proxmox.pub"
     EOF
   
   # Génération de l'inventaire

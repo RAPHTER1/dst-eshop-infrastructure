@@ -26,12 +26,22 @@
   shell: /usr/sbin/qm set {{ item.key }} --ipconfig0 ip={{ vm_cfg.vm_ip_cidr }},gw={{ vm_cfg.vm_gateway }}
 
 # 5. Clé SSH
-- name: Injecter la clé SSH
+- name: Copier la clé publique sur le nœud Proxmox
   become: true
-  shell: |
-    printf '%s\n' "$K8S_PROXMOX_PUBLIC_KEY_FILE" > /tmp/sshkey_{{ item.key }}.pub
-    /usr/sbin/qm set {{ item.key }} --sshkey /tmp/sshkey_{{ item.key }}.pub
-    rm -f /tmp/sshkey_{{ item.key }}.pub
+  copy:
+    src: "{{ lookup('env', 'K8S_PROXMOX_PUBLIC_KEY_FILE') | expanduser }}"
+    dest: "/tmp/sshkey_{{ item.key }}.pub"
+    mode: "0644"
+
+- name: Injecter la clé via qm set
+  become: true
+  shell: /usr/sbin/qm set {{ item.key }} --sshkey /tmp/sshkey_{{ item.key }}.pub
+
+- name: Nettoyer le fichier temporaire
+  become: true
+  file:
+    path: "/tmp/sshkey_{{ item.key }}.pub"
+    state: absent
 
 # 6. Démarrage
 - name: Démarrer la VM
