@@ -7,9 +7,6 @@ set -a
 source .env.local
 set +a
 
-# Génère l'inventaire
-./generate_inventory.sh
-
 # Exécute le playbook demandé (par défaut : 01-provision.yml)
 PLAYBOOK=${1:-playbooks/01-provision.yml}
 
