@@ -1,3 +1,46 @@
 stages:
-  - init
-  - plan
+  - provision
+
+image: debian:12-slim
+
+# variables:
+#   ANSIBLE_HOST_KEY_CHECKING: "false"
+
+before_script:
+  - apt-get update -qy
+  - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core
+
+  # 2) On prépare ~/.ssh
+  - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+  # On importe la clé privée ...
+  - echo "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE" > ~/.ssh/ansible_proxmox
+  - chmod 600 ~/.ssh/ansible_proxmox
+  # ... puis la clé public pour le cloud-init
+  - echo "$K8S_PROXMOX_PUBLIC_KEY_FILE" > ~/.ssh/k8s_proxmox.pub
+  - chmod 644 ~/.ssh/k8s_proxmox.pub
+
+  # 3) Ajout du nœud Proxmox dans known_hosts (pour que le runner ne pose plus de question)
+  - ssh-keyscan -p "$PROXMOX_HOST_PORT" "$PROXMOX_HOST_IP" >> ~/.ssh/known_hosts
+
+  # 4) Génère .env.local (lu par generate_inventory.sh / ansible.sh)
+  - |
+    cat > .env.local <<EOF
+    PROXMOX_HOST_IP=$PROXMOX_HOST_IP
+    PROXMOX_HOST_PORT=$PROXMOX_HOST_PORT
+    PROXMOX_PRIVATE_KEY=~/.ssh/ansible_proxmox
+    K8S_PROXMOX_PUBLIC_KEY=$(cat ~/.ssh/k8s_proxmox.pub)
+    EOF
+  
+  # Génération de l'inventaire
+  - envsubst < inventory/proxmox.template.yml > inventory/proxmox.yml
+
+provision:
+  stage: provision
+  script:
+    - ./ansible.sh
+  artifacts:
+    untracked: false
+    when: on_success
+    expire_in: "1 day"
+    paths:
+      - inventory/proxmox.yml
