@@ -42,9 +42,6 @@ provision:
   script:
     - ./generate_inventory.sh
     - cat inventory/proxmox.yml
-    - ssh-keygen -yf ~/.ssh/ansible_proxmox >/dev/null \
-      && echo ">>> clé NON chiffrée" \
-      || echo ">>> clé CHIFFRÉE (pass-phrase)"
     - ./ansible.sh
   artifacts:
     untracked: false
