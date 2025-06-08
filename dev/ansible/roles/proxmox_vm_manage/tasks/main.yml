@@ -1,0 +1,34 @@
+- name: Vérifie si la VM {{ item.value.vmid }} existe
+  shell: qm list | awk '{print $1}' | grep -q "^{{ item.value.vmid }}$"
+  register: check_vm
+  changed_when: false
+  failed_when: false
+
+- name: Cloner depuis le template si la VM n'existe pas
+  shell: qm clone {{ item.value.template_id }} {{ item.value.vmid }} --name {{ item.value.name }}
+  when: check_vm.rc != 0
+
+- name: Resize disque si scsi0 existe
+  shell: |
+    qm config {{ item.value.vmid }} | grep -q '^scsi0:' && \
+    qm disk resize {{ item.value.vmid }} scsi0 {{ item.value.disk_size }}
+  ignore_errors: true
+
+- name: Définir RAM, CPU, bridge
+  shell: >
+    qm set {{ item.value.vmid }}
+    --memory {{ item.value.memory }}
+    --cores {{ item.value.cores }}
+    --net0 virtio,bridge={{ item.value.bridge }}
+
+- name: Définir IP fixe via cloud-init
+  shell: qm set {{ item.value.vmid }} --ipconfig0 ip={{ item.value.ip_cidr }},gw={{ item.value.gateway }}
+
+- name: Injecter la clé SSH
+  shell: |
+    echo "{{ lookup('env', 'K8S_PROXMOX_PUBLIC_KEY') }}" > /tmp/sshkey_{{ item.value.vmid }}.pub
+    qm set {{ item.value.vmid }} --sshkey /tmp/sshkey_{{ item.value.vmid }}.pub
+    rm -f /tmp/sshkey_{{ item.value.vmid }}.pub
+
+- name: Démarrer la VM
+  shell: qm start {{ item.value.vmid }}

@@ -1,0 +1,10 @@
+- name: Provisionner les VMs sur Proxmox
+  hosts: proxmox_host
+  gather_facts: false
+  tasks:
+    - name: Provisionner chaque VM
+      include_role:
+        name: proxmox_vm_manage
+      loop: "{{ lookup('dict', k8s_vms) }}"
+      loop_control:
+        label: "{{ item.key }}"
