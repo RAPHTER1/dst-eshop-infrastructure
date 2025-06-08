@@ -2,10 +2,6 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-# Génère l'inventaire final
-envsubst < inventory/proxmox.template.yml > inventory/proxmox.yml
-echo "Inventaire généré : inventory/proxmox.yml"
-
 # Charge .env.local
 set -a
 source .env.local
