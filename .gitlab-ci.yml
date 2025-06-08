@@ -10,6 +10,7 @@ before_script:
   - apt-get update -qy
   - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core
   - cd dev/ansible
+  - export ANSIBLE_ROLES_PATH="$CI_PROJECT_DIR/dev/ansible/roles"
 
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
