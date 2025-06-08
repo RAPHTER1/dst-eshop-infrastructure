@@ -1,0 +1,39 @@
+# 1. Clonage
+- name: Cloner depuis le template
+  become: true
+  shell: /usr/sbin/qm clone {{ vm_cfg.template_id }} {{ item.key }} --name {{ vm_cfg.vm_name }}
+
+# 2. Ressources
+- name: Appliquer CPU / RAM / réseau
+  become: true
+  shell: >
+    /usr/sbin/qm set {{ item.key }}
+    --memory {{ vm_cfg.vm_memory }}
+    --cores  {{ vm_cfg.vm_cpu }}
+    --net0   virtio,bridge={{ vm_cfg.bridge }}
+
+# 3. Disk resize (si scsi0)
+- name: Resize disque si scsi0 présent
+  become: true
+  shell: |
+    /usr/sbin/qm config {{ item.key }} | grep -q '^scsi0:' && \
+    /usr/sbin/qm disk resize {{ item.key }} scsi0 {{ vm_cfg.disk_size }}
+  ignore_errors: true
+
+# 4. IP + gateway
+- name: Configurer IP + gateway
+  become: true
+  shell: /usr/sbin/qm set {{ item.key }} --ipconfig0 ip={{ vm_cfg.vm_ip_cidr }},gw={{ vm_cfg.vm_gateway }}
+
+# 5. Clé SSH
+- name: Injecter la clé SSH
+  become: true
+  shell: |
+    printf '%s\n' "$K8S_PROXMOX_PUBLIC_KEY" > /tmp/sshkey_{{ item.key }}.pub
+    /usr/sbin/qm set {{ item.key }} --sshkey /tmp/sshkey_{{ item.key }}.pub
+    rm -f /tmp/sshkey_{{ item.key }}.pub
+
+# 6. Démarrage
+- name: Démarrer la VM
+  become: true
+  shell: /usr/sbin/qm start {{ item.key }}

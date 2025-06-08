@@ -1,10 +1,16 @@
 - name: Provisionner les VMs sur Proxmox
-  hosts: proxmox_host
+  hosts: provision
   gather_facts: false
   tasks:
+    - name: DEBUG - Vérifier la variable
+      debug:
+        var: k8s_vms
+
     - name: Provisionner chaque VM
       include_role:
         name: proxmox_vm_manage
-      loop: "{{ lookup('dict', k8s_vms) }}"
+      loop: "{{ query('dict', k8s_vms) }}"        #  ← ou  lookup('dict', k8s_vms, wantlist=True)
       loop_control:
         label: "{{ item.key }}"
+      vars:
+        vm_cfg: "{{ item.value }}"

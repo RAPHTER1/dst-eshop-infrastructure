@@ -1,0 +1,11 @@
+k8s_vms:
+  "9101":
+    vm_name: k8s-master
+    vm_ip_cidr: 192.168.1.101/24
+    vm_gateway: 192.168.1.1
+    vm_cpu: 4
+    vm_memory: 4096
+    disk_size: 20G
+    bridge: vmbr0
+    storage: local-lvm
+    template_id: 9000

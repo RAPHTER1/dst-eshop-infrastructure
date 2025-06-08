@@ -1,0 +1,3 @@
+- name: VM {{ vm_cfg.vm_name }} ({{ item.key }}) existe déjà — rien à faire
+  debug:
+    msg: "VM déjà provisionnée, on saute les étapes de création."

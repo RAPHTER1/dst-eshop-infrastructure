@@ -3,10 +3,10 @@ all:
     provision:
       hosts:
         proxmox_host:
-          ansible_host: "92.94.91.114"
+          ansible_host: "$PROXMOX_HOST_IP"
           ansible_user: ansible
-          ansible_port: "9000"
-          ansible_ssh_private_key_file: "/home/raphter/.ssh/ansible_proxmox"
+          ansible_port: "$PROXMOX_HOST_PORT"
+          ansible_ssh_private_key_file: "$PROXMOX_PRIVATE_KEY"
           ansible_python_interpreter: /usr/bin/python3
   vars:
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'

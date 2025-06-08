@@ -1,0 +1,7 @@
+- name: Vérifier k8s_vms
+  hosts: provision
+  gather_facts: false
+  tasks:
+    - name: Afficher la variable
+      debug:
+        var: k8s_vms
