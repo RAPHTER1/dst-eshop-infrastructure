@@ -33,7 +33,7 @@ before_script:
     EOF
   
   # Génération de l'inventaire
-  - envsubst < dev/ansible/inventory/proxmox.template.yml > inventory/proxmox.yml
+  - envsubst < inventory/proxmox.template.yml > inventory/proxmox.yml
 
 provision:
   stage: provision
