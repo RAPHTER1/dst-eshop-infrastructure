@@ -59,4 +59,4 @@ provision:
     when: on_success
     expire_in: "1 day"
     paths:
-      - inventory/proxmox.yml
+      - dev/ansible/inventory/proxmox.yml
