@@ -6,7 +6,7 @@ all:
           ansible_host: "$PROXMOX_HOST_IP"
           ansible_user: ansible
           ansible_port: "$PROXMOX_HOST_PORT"
-          ansible_ssh_private_key_file: "~/.ssh/ansible_proxmox"
+          ansible_ssh_private_key_file: "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
 
           ansible_python_interpreter: /usr/bin/python3
   vars:
