@@ -3,8 +3,8 @@ stages:
 
 image: debian:12-slim
 
-# variables:
-#   ANSIBLE_HOST_KEY_CHECKING: "false"gf
+variables:
+   ANSIBLE_HOST_KEY_CHECKING: "false"
 
 before_script:
   - apt-get update -qy
