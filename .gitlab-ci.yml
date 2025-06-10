@@ -60,3 +60,5 @@ provision:
     expire_in: "1 day"
     paths:
       - dev/ansible/inventory/proxmox.yml
+
+# YO
