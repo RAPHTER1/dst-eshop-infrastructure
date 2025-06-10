@@ -13,7 +13,9 @@ before_script:
   - echo "$SSH_KEY" > ~/.ssh/ansible_proxmox
   - chmod 600 ~/.ssh/ansible_proxmox
   - export ANSIBLE_SSH_PRIVATE_KEY_FILE=~/.ssh/ansible_proxmox
-
+  - ssh-keyscan -p "$PROXMOX_HOST_PORT" "$PROXMOX_HOST_IP" >> ~/.ssh/known_hosts
+  - echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+  - chmod 600 ~/.ssh/config
 provision:
   stage: ssh
   script:
