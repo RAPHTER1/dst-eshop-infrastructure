@@ -24,6 +24,9 @@ before_script:
 
   # 3) Ajout du nœud Proxmox dans known_hosts (pour que le runner ne pose plus de question)
   - ssh-keyscan -p "$PROXMOX_HOST_PORT" "$PROXMOX_HOST_IP" >> ~/.ssh/known_hosts
+  - echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+  - chmod 600 ~/.ssh/config
+
 
   # 4) Génère .env.local (lu par generate_inventory.sh / ansible.sh)
   - |
