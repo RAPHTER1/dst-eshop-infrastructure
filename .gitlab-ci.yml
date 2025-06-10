@@ -15,8 +15,8 @@ before_script:
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   # On importe la clé privée ...
-  - export ANSIBLE_SSH_PRIVATE_KEY_FILE="$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
-  - chmod 600 "$ANSIBLE_SSH_PRIVATE_KEY_FILE"
+  - export ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE="$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
+  - chmod 600 "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
 
   # ... puis la clé public pour le cloud-init
   - cp "$K8S_PROXMOX_PUBLIC_KEY_FILE" ~/.ssh/k8s_proxmox.pub
@@ -33,7 +33,7 @@ before_script:
     cat > .env.local <<EOF
     PROXMOX_HOST_IP=$PROXMOX_HOST_IP
     PROXMOX_HOST_PORT=$PROXMOX_HOST_PORT
-    ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE=$ANSIBLE_SSH_PRIVATE_KEY_FILE
+    ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE=$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE
     K8S_PROXMOX_PUBLIC_KEY_FILE=~/.ssh/k8s_proxmox.pub
     EOF
   
