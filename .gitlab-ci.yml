@@ -8,7 +8,7 @@ variables:
 
 before_script:
   - apt-get update -qy
-  - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core
+  - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file
   - cd dev/ansible
   - export ANSIBLE_ROLES_PATH="$CI_PROJECT_DIR/dev/ansible/roles"
 
