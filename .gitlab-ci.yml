@@ -43,6 +43,13 @@ before_script:
 provision:
   stage: provision
   script:
+    - echo "Key file path $ANSIBLE_SSH_PRIVATE_KEY_FILE"
+    - ls -l "$ANSIBLE_SSH_PRIVATE_KEY_FILE"
+    - file "$ANSIBLE_SSH_PRIVATE_KEY_FILE"
+    - head -n 5 "$ANSIBLE_SSH_PRIVATE_KEY_FILE"
+
+    - ssh -i "$ANSIBLE_SSH_PRIVATE_KEY_FILE" -p "$PROXMOX_HOST_PORT" ansible@"$PROXMOX_HOST_IP" hostname
+
     - ./generate_inventory.sh
     - cat inventory/proxmox.yml
     - ./ansible.sh
