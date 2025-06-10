@@ -15,7 +15,8 @@ before_script:
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   # On importe la clé privée ...
-  - export ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE="$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
+  - cp "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE" "$HOME/.ssh/ansible_proxmox"
+  - export ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE="$HOME/.ssh/ansible_proxmox"
   - chmod 600 "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
 
   # ... puis la clé public pour le cloud-init
