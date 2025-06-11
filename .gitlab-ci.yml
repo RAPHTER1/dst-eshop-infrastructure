@@ -8,10 +8,9 @@ variables:
 
 before_script:
   - apt-get update -qy
-  - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file python3-pip pipx
-  - pipx ensurepath
-  - pipx install kubernetes
-  - export PATH="$HOME/.local/bin:$PATH"  # pipx installe dans ~/.local/bin
+  - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file python3-pip
+  - python3 -m pip install --user kubernetes
+  - export PATH="$HOME/.local/bin:$PATH"
   - ansible-galaxy collection install kubernetes.core
   - cd dev/ansible
   - export ANSIBLE_ROLES_PATH="$CI_PROJECT_DIR/dev/ansible/roles"
