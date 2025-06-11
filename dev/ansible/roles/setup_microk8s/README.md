@@ -68,7 +68,7 @@ Ce rôle détectera automatiquement s’il s’exécute dans un environnement CI
 
 ## 🔧 Dépendances
 
-Ce rôle dépend de la collection `kubernetes.core` d'Ansible **et** du module Python `kubernetes` **installé sur la machine qui exécute Ansible** (typiquement : votre runner GitLab ou votre poste de travail).
+Ce rôle dépend de la collection `kubernetes.core` et `community.general` d'Ansible **et** du module Python `kubernetes` **installé sur la machine qui exécute Ansible** (typiquement : votre runner GitLab ou votre poste de travail).
 
 ### 📦 Installation de la collection (machine de contrôle)
 

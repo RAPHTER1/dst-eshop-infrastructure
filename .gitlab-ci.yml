@@ -12,6 +12,7 @@ before_script:
   - python3 -m pip install --user kubernetes --break-system-packages
   - export PATH="$HOME/.local/bin:$PATH"
   - ansible-galaxy collection install kubernetes.core
+  - ansible-galaxy collection install community.general
   - cd dev/ansible
   - export ANSIBLE_ROLES_PATH="$CI_PROJECT_DIR/dev/ansible/roles"
 
