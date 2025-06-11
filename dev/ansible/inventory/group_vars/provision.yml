@@ -9,3 +9,5 @@ k8s_vms:
     bridge: vmbr0
     storage: local-lvm
     template_id: 9000
+
+k8s_api_public_url: "https://{{ lookup('env', 'PROXMOX_HOST') }}:9101"

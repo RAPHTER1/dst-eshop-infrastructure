@@ -9,33 +9,46 @@ variables:
 before_script:
   - apt-get update -qy
   - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file
+  - apt-get install -qy --no-install-recommends python3-pip
+  - pip install kubernetes
+  - ansible-galaxy collection install kubernetes.core
   - cd dev/ansible
   - export ANSIBLE_ROLES_PATH="$CI_PROJECT_DIR/dev/ansible/roles"
 
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
-  # On importe la clé privée ...
-  - echo "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE" > ~/.ssh/ansible_proxmox
-  - chmod 600 ~/.ssh/ansible_proxmox
-  - export ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE=~/.ssh/ansible_proxmox
+  # On importe la clé privée pour provisionner Proxmox
+  - echo "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY" > "$HOME/.ssh/ansible_proxmox"
+  - export ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE="$HOME/.ssh/ansible_proxmox"
+  - chmod 600 "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
+  
 
-  # ... puis la clé public pour le cloud-init
-  - cp "$K8S_PROXMOX_PUBLIC_KEY_FILE" ~/.ssh/k8s_proxmox.pub
-  - chmod 644 ~/.ssh/k8s_proxmox.pub
+  # On importe les clés de la machine créer
+  # D'abord la public...
+  - echo "$K8S_PROXMOX_PUBLIC_KEY" > "$HOME/.ssh/k8s_proxmox.pub"
+  - export K8S_PROXMOX_PUBLIC_KEY_FILE="$HOME/.ssh/k8s_proxmox.pub"
+  - chmod 644 "$K8S_PROXMOX_PUBLIC_KEY_FILE"
+  
+  # ensuite la privée
+  - echo "$K8S_PROXMOX_PRIVATE_KEY" > "$HOME/.ssh/k8s_proxmox"
+  - export K8S_PROXMOX_PRIVATE_KEY_FILE="$HOME/.ssh/k8s_proxmox"
+  - chmod 600 "$K8S_PROXMOX_PRIVATE_KEY_FILE"
 
   # 3) Ajout du nœud Proxmox dans known_hosts (pour que le runner ne pose plus de question)
   - ssh-keyscan -p "$PROXMOX_HOST_PORT" "$PROXMOX_HOST_IP" >> ~/.ssh/known_hosts
   - echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
   - chmod 600 ~/.ssh/config
 
-
   # 4) Génère .env.local (lu par generate_inventory.sh / ansible.sh)
   - |
     cat > .env.local <<EOF
+    GITLAB_API_TOKEN=$GITLAB_API_TOKEN
     PROXMOX_HOST_IP=$PROXMOX_HOST_IP
     PROXMOX_HOST_PORT=$PROXMOX_HOST_PORT
     ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE=$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE
-    K8S_PROXMOX_PUBLIC_KEY_FILE=~/.ssh/k8s_proxmox.pub
+    K8S_PROXMOX_PUBLIC_KEY_FILE=$K8S_PROXMOX_PUBLIC_KEY_FILE
+    K8S_PROXMOX_PRIVATE_KEY_FILE=$K8S_PROXMOX_PRIVATE_KEY_FILE
+    K8S_API_PUBLIC_URL="https://${PROXMOX_HOST_IP}:${KUBERNETES_API_PORT}"
     EOF
   
   # Génération de l'inventaire
@@ -44,13 +57,6 @@ before_script:
 provision:
   stage: provision
   script:
-    - echo "Key file path $ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
-    - ls -l "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
-    - file "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
-    - head -n 5 "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE"
-
-    - ssh -i "$ANSIBLE_PROXMOX_SSH_PRIVATE_KEY_FILE" -p "$PROXMOX_HOST_PORT" ansible@"$PROXMOX_HOST_IP" hostname
-
     - ./generate_inventory.sh
     - cat inventory/proxmox.yml
     - ./ansible.sh

@@ -1,0 +1,69 @@
+- name: Fail if GitLab API token is not defined
+  fail:
+    msg: "GITLAB_API_TOKEN is not set. Please export it in your .env.local or CI/CD variables."
+  when: lookup('env', 'GITLAB_API_TOKEN') is not defined
+  delegate_to: localhost
+
+- name: Copy GitLab CI ServiceAccount manifest to remote
+  copy:
+    src: gitlab_sa.yaml
+    dest: /tmp/gitlab_sa.yaml
+    mode: '0644'
+
+- name: Apply Gitlab CI ServiceAccount manifest
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('file', '/tmp/gitlab_sa.yaml') | from_yaml }}"
+    kubeconfig: /home/ubuntu/.kube/config
+    context: microk8s
+  become: true
+
+- name: Get GitLab CI SA token
+  shell: >
+    microk8s kubectl -n kube-system get secret \
+    -o jsonpath="{.items[?(@.metadata.annotations['kubernetes\.io/service-account\.name']=='gitlab-ci')].data.token}" | base64 -d
+  register: gitlab_ci_sa_token
+  become: true
+  no_log: true
+
+- name: Debug token (only if DEBUG=true)
+  debug:
+    msg: "GitLab CI token: {{ gitlab_ci_sa_token.stdout }}"
+  when: lookup('env', 'DEBUG') == 'true'
+
+- name: Read MicroK8s CA Certificate
+  slurp:
+    src: /var/snap/microk8s/current/certs/ca.crt
+  register: ca_cert_raw
+  become: true
+
+- name: Decode CA cert and export
+  set-fact:
+    k8s_ca_cert_b64: "{{ ca_cert_raw['content'] }}"
+
+- name: Read current GitLab kubeconfig (if present)
+  slurp:
+    src: /tmp/kubeconfig_gitlab.yml
+  register: current_gitlab_kubeconfig
+  ignore_errors: true
+  become: true
+
+- name: Render new GitLab kubeconfig content locally
+  template:
+    src: kubeconfig_gitlab.yml.j2
+  register: rendered_kubeconfig
+  vars:
+    k8s_api_public_url: "{{ lookup('env', 'K8S_API_PUBLIC_URL') }}"
+    gitlab_ci_sa_token: "{{ gitlab_ci_sa_token.stdout }}"
+    k8s_ca_crt_b64: "{{ k8s_ca_cert_b64 }}"
+  delegate_to: localhost
+  check_mode: true  # ne fait rien, juste pour rendre output.content disponible
+  changed_when: false
+
+- name: Write kubeconfig if content differs or file is missing
+  copy:
+    content: "{{ rendered_kubeconfig.content }}"
+    dest: /tmp/kubeconfig_gitlab.yml
+    mode: '0600'
+  when: current_gitlab_kubeconfig is failed or (current_gitlab_kubeconfig.content | b64decode) != rendered_kubeconfig.content
+  become: true

@@ -35,3 +35,5 @@ Thumbs.db
 # Clés SSH éventuelles
 *.pem
 *.key
+
+#.env.local

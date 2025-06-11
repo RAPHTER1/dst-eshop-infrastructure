@@ -1,0 +1,2 @@
+---
+microk8s_snap_channel: "{{ microk8s_version }}"

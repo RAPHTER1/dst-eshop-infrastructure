@@ -1,1 +1,95 @@
 ---
+- name: Install Python Kubernetes client on target
+  apt:
+    name: python3-kubernetes
+    state: present
+  become: true
+
+- name: Ensure snapd is installed
+  apt:
+    name: snapd
+    state: present
+    update_cache: yes
+
+- name: Install MicroK8s
+  snap:
+    name: microk8s
+    classic: yes
+    channel: "{{ microk8s_snap_channel }}"
+    state: present
+
+- name: Wait for MicroK8s to be ready
+  command: microk8s status --wait-ready
+  changed_when: false
+
+- name: Add ubuntu user to microk8s group
+  user:
+    name: ubuntu
+    groups: microk8s
+    append: yes
+  become: true
+
+- name: Create .kube directory for ubuntu
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: 0700
+  become: true
+
+- name: Read current kubeconfig content (if exists)
+  slurp:
+    src: /home/ubuntu/.kube/config
+  register: existing_kubeconfig
+  ignore_errors: true
+  become: true
+
+- name: Generate kubeconfig from MicroK8s
+  command: microk8s config
+  register: new_kubeconfig
+  changed_when: false
+  become: true
+
+- name: Update kubeconfig only if different
+  copy:
+    content: "{{ new_kubeconfig.stdout }}"
+    dest: /home/ubuntu/.kube/config
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
+  when: existing_kubeconfig is failed or new_kubeconfig.stdout | b64encode != existing_kubeconfig.content
+  become: true
+
+- name: Get MicroK8s status
+  command: microk8s status --format yaml
+  register: microk8s_status
+  changed_when: false
+  become: true
+
+- name: Enable DNS addon if not enabled
+  command: microk8s enable dns
+  when: "'dns' not in microk8s_status.stdout"
+  become: true
+
+- name: Enable storage addon if not enabled
+  command: microk8s enable storage
+  when: "'storage' not in microk8s_status.stdout"
+  become: true
+
+- name: Symlink microk8s kubectl to /usr/local/bin/kubectl
+  file:
+    src: /snap/bin/microk8s.kubectl
+    dest: /usr/local/bin/kubectl
+    state: link
+  become: true
+
+- name: Include CI-specific tasks
+  import_tasks: ci.yml
+  when: lookup('env', 'CI') == 'true'
+
+
+
+# CI-specific tasks (GitLab push, kubeconfig, etc.) will be moved to a separate role
+# Ce rôle s'arrête ici : installation, addons, SA, token, et cert récupérés
+# Toute logique GitLab CI est déportée dans un rôle conditionnel (exécuté seulement si CI=true)
