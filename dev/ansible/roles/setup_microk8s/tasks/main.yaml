@@ -1,10 +1,4 @@
 ---
-- name: Install Python Kubernetes client on target
-  apt:
-    name: python3-kubernetes
-    state: present
-  become: true
-
 - name: Ensure snapd is installed
   apt:
     name: snapd
