@@ -9,7 +9,7 @@ variables:
 before_script:
   - apt-get update -qy
   - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file python3-pip
-  - python3 -m pip install --user kubernetes
+  - python3 -m pip install --user kubernetes --break-system-packages
   - export PATH="$HOME/.local/bin:$PATH"
   - ansible-galaxy collection install kubernetes.core
   - cd dev/ansible
