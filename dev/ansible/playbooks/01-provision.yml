@@ -14,3 +14,7 @@
         label: "{{ item.key }}"
       vars:
         vm_cfg: "{{ item.value }}"
+
+    - name: Installer et paramétrer MicroK8s
+      include_role:
+        name: setup_microk8s

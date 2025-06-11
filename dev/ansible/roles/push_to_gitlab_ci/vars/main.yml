@@ -1,1 +1,0 @@
-k8s_api_public_url: "https://{{ lookup('env', 'PROXMOX_HOST') }}:9101"
