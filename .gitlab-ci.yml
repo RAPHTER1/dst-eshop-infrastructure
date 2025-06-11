@@ -10,7 +10,8 @@ before_script:
   - apt-get update -qy
   - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file
   - apt-get install -qy --no-install-recommends python3-pip
-  - pip install kubernetes
+  - python3 -m pip install --user kubernetes
+  - export PATH="$HOME/.local/bin:$PATH"
   - ansible-galaxy collection install kubernetes.core
   - cd dev/ansible
   - export ANSIBLE_ROLES_PATH="$CI_PROJECT_DIR/dev/ansible/roles"
