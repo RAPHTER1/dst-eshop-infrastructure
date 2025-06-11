@@ -7,14 +7,16 @@ variables:
    ANSIBLE_HOST_KEY_CHECKING: "false"
 
 before_script:
-  - apt-get update -qy
-  - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file python3-pip
-  - python3 -m pip install --user kubernetes --break-system-packages
+  - apt update -qy
+  - apt install -qy --no-install-recommends python3-pip python3-venv git gettext openssh-client file
+  - python3 -m pip install --break-system-packages --user ansible==8.7.0 kubernetes
   - export PATH="$HOME/.local/bin:$PATH"
-  - ansible-galaxy collection install kubernetes.core
   - ansible-galaxy collection install community.general
-  - cd dev/ansible
-  - export ANSIBLE_ROLES_PATH="$CI_PROJECT_DIR/dev/ansible/roles"
+  - ansible-galaxy collection install kubernetes.core
+  - mkdir -p /tmp/ansible_runner
+  - cp -r dev/ansible/* /tmp/ansible_runner/
+  - cd /tmp/ansible_runner
+  - export ANSIBLE_ROLES_PATH="/tmp/ansible_runner/roles"
 
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
