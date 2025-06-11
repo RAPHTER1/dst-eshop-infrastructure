@@ -26,6 +26,7 @@ before_script:
   - export ANSIBLE_ROLES_PATH="/tmp/ansible_runner/roles"
 
   # ✅ Vérification (optionnel mais utile en debug)
+  - export ANSIBLE_CONFIG="/tmp/ansible_runner/ansible.cfg"
   - ansible --version
   - ansible-galaxy collection list
 
