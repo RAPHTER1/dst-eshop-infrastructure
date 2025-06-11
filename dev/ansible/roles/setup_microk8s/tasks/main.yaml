@@ -11,6 +11,7 @@
     classic: yes
     channel: "{{ microk8s_snap_channel }}"
     state: present
+  become: true
 
 - name: Wait for MicroK8s to be ready
   command: microk8s status --wait-ready

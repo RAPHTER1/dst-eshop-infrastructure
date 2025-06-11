@@ -1,5 +1,6 @@
+# Étape 1 : Provisionner les VMs depuis le hôte Proxmox
 - name: Provisionner les VMs sur Proxmox
-  hosts: provision
+  hosts: proxmox_host
   gather_facts: false
   tasks:
     - name: DEBUG - Vérifier la variable
@@ -9,12 +10,15 @@
     - name: Provisionner chaque VM
       include_role:
         name: proxmox_vm_manage
-      loop: "{{ query('dict', k8s_vms) }}"        #  ← ou  lookup('dict', k8s_vms, wantlist=True)
+      loop: "{{ query('dict', k8s_vms) }}"
       loop_control:
         label: "{{ item.key }}"
       vars:
         vm_cfg: "{{ item.value }}"
 
-    - name: Installer et paramétrer MicroK8s
-      include_role:
-        name: setup_microk8s
+# Étape 2 : Installer MicroK8s sur le nœud master
+- name: Installer et configurer MicroK8s
+  hosts: k8s_master
+  become: true
+  roles:
+    - setup_microk8s
