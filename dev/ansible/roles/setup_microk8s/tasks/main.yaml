@@ -1,4 +1,10 @@
 ---
+- name: Ensure snapd is installed
+  apt:
+    name: snapd
+    state: present
+    update_cache: yes
+
 - name: Check if MicroK8s is already installed
   command: which microk8s
   register: microk8s_check
