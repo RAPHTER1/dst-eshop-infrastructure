@@ -1,17 +1,13 @@
 ---
-- name: Ensure snapd is installed
-  apt:
-    name: snapd
-    state: present
-    update_cache: yes
+- name: Check if MicroK8s is already installed
+  command: which microk8s
+  register: microk8s_check
+  ignore_errors: true
 
-- name: Install MicroK8s
-  snap:
-    name: microk8s
-    classic: yes
-    #channel: "{{ microk8s_snap_channel }}"
-    state: present
+- name: Install MicroK8s via snap
+  command: snap install microk8s --classic
   become: true
+  when: microk8s_check.rc != 0
 
 - name: Wait for MicroK8s to be ready
   command: microk8s status --wait-ready

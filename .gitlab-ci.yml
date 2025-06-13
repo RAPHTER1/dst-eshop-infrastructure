@@ -28,7 +28,7 @@ before_script:
   # ✅ Vérification (optionnel mais utile en debug)
   - export ANSIBLE_CONFIG="/tmp/ansible_runner/ansible.cfg"
   - ansible --version
-  #- ansible-galaxy collection list
+  # - ansible-galaxy collection list
 
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
