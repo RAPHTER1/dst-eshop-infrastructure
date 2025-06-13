@@ -9,7 +9,7 @@
   snap:
     name: microk8s
     classic: yes
-    channel: "{{ microk8s_snap_channel }}"
+    #channel: "{{ microk8s_snap_channel }}"
     state: present
   become: true
 
