@@ -17,6 +17,7 @@ before_script:
   - pip install --no-cache-dir --user ansible-core==2.14.0
   - pip install --no-cache-dir --user kubernetes
   - export PATH="$HOME/.local/bin:$PATH"
+  - cd dev/ansible
 
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
@@ -55,7 +56,7 @@ before_script:
     EOF
   
   # Génération de l'inventaire
-  - envsubst < $PROJECT_DIR/dev/ansible/inventory/proxmox.template.yml > inventory/proxmox.yml
+  - envsubst < inventory/proxmox.template.yml > inventory/proxmox.yml
 
 provision:
   stage: provision
