@@ -10,9 +10,10 @@ variables:
 before_script:
   # 🧼 Préparation système minimale
   - apt-get update -qy
-  - apt-get install -qy --no-install-recommends openssh-client git gettext ansible-core file python3-pip
+  - apt-get install -qy --no-install-recommends openssh-client git gettext file python3-pip
 
   # 🐍 Installer le module Python `kubernetes` (nécessaire pour le rôle)
+  - pip install --no-cache-dir --user "ansible-core==2.14.0"
   - python3 -m pip install --user kubernetes --break-system-packages
   - export PATH="$HOME/.local/bin:$PATH"
 
