@@ -13,24 +13,11 @@ before_script:
   - apt-get install -qy --no-install-recommends openssh-client git gettext file python3-pip
 
   # 🐍 Installer le module Python `kubernetes` (nécessaire pour le rôle)
-  - pip install --no-cache-dir --user "ansible-core==2.14.0"
-  - python3 -m pip install --user kubernetes --break-system-packages
+  - export PIP_BREAK_SYSTEM_PACKAGES=1
+  - pip install --no-cache-dir --user ansible-core==2.14.0
+  - pip install --no-cache-dir --user kubernetes
   - export PATH="$HOME/.local/bin:$PATH"
-
-  # 📦 Installer les collections nécessaires
-  - ansible-galaxy collection install kubernetes.core
-  - ansible-galaxy collection install community.general
-
-  # 🏃 Copier Ansible dans un répertoire temporaire non world-writable
-  - mkdir -p /tmp/ansible_runner
-  - cp -r dev/ansible/* /tmp/ansible_runner/
-  - cd /tmp/ansible_runner
-  - export ANSIBLE_ROLES_PATH="/tmp/ansible_runner/roles"
-
-  # ✅ Vérification (optionnel mais utile en debug)
-  - export ANSIBLE_CONFIG="/tmp/ansible_runner/ansible.cfg"
   - ansible --version
-  # - ansible-galaxy collection list
 
   # 2) On prépare ~/.ssh
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
