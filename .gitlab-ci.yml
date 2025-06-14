@@ -5,6 +5,7 @@ image: debian:12-slim
 
 variables:
    ANSIBLE_HOST_KEY_CHECKING: "false"
+   ANSIBLE_CONFIG: "$CI_PROJECT_DIR/dev/ansible/ansible.cfg"
 
 before_script:
   # 🧼 Préparation système minimale
