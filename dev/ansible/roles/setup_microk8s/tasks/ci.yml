@@ -71,7 +71,9 @@
 # 4. Mettre à jour uniquement si nécessaire
 - name: Upsert GitLab variable KUBECONFIG_GITLAB_B64
   uri:
-    url: "https://gitlab.com/api/v4/projects/{{ lookup('env','CI_PROJECT_ID') }}/variables/KUBECONFIG_GITLAB_B64"
+    url: >-
+      https://gitlab.com/api/v4/projects/{{ lookup('env','CI_PROJECT_ID') }}/variables
+      {% if gitlab_var.status == 200 %}/KUBECONFIG_GITLAB_B64{% endif %}
     method: "{{ 'PUT' if gitlab_var.status == 200 else 'POST' }}"
     headers:
       PRIVATE-TOKEN: "{{ lookup('env','GITLAB_API_TOKEN') }}"
@@ -80,5 +82,6 @@
       value: "{{ kubeconfig_gitlab_b64 }}"
       masked: "false"
       protected: "false"
+    status_code: 200
   when: gitlab_var.status != 200 or gitlab_var.json.value != kubeconfig_gitlab_b64
   delegate_to: localhost
