@@ -41,57 +41,44 @@
   set_fact:
     k8s_ca_cert_b64: "{{ ca_cert_raw['content'] }}"
 
-- name: Render new GitLab kubeconfig content locally
-  template:
-    src: kubeconfig_gitlab.yml.j2
-  register: rendered_kubeconfig
-  vars:
-    k8s_api_public_url: "{{ lookup('env', 'K8S_API_PUBLIC_URL') }}"
-    gitlab_ci_sa_token: "{{ gitlab_ci_sa_token.stdout }}"
-    k8s_ca_crt_b64: "{{ k8s_ca_cert_b64 }}"
+# 1. Rendre le template en mémoire (aucun fichier écrit)
+- name: Render kubeconfig to variable
+  set_fact:
+    rendered_kubeconfig: >-
+      {{ lookup('template', 'kubeconfig_gitlab.yml.j2',
+                k8s_api_public_url        = lookup('env','K8S_API_PUBLIC_URL'),
+                gitlab_ci_sa_token        = gitlab_ci_sa_token.stdout,
+                k8s_ca_crt_b64            = k8s_ca_cert_b64) }}
   delegate_to: localhost
-  check_mode: true  # ne fait rien, juste pour rendre output.content disponible
-  changed_when: false
 
-- name: Write kubeconfig to /tmp
-  copy:
-    content: "{{ rendered_kubeconfig.content }}"
-    dest: /tmp/kubeconfig_gitlab.yml
-    mode: '0600'
-  become: true
+# 2. Encoder directement en base64
+- name: Encode kubeconfig to base64
+  set_fact:
+    kubeconfig_gitlab_b64: "{{ rendered_kubeconfig | b64encode }}"
+  delegate_to: localhost
 
-- name: Encode GitLab Kubeconfig in base64
-  shell: base64 -w0 /tmp/kubeconfig_gitlab.yml
-  register: kubeconfig_gitlab_b64
-  changed_when: false
-  become: true
-
-- name: Get existing GitLab variable KUBECONFIG_GITLAB_B64
+# 3. Récupérer la variable existante
+- name: Get current GitLab project variable
   uri:
-    url: "https://gitlab.com/api/v4/projects/{{ lookup('env', 'CI_PROJECT_ID') }}/variables/KUBECONFIG_GITLAB_B64"
-    method: GET
+    url: "https://gitlab.com/api/v4/projects/{{ lookup('env','CI_PROJECT_ID') }}/variables/KUBECONFIG_GITLAB_B64"
     headers:
-      PRIVATE_TOKEN: "{{ lookup('env', 'GITLAB_API_TOKEN') }}"
-  register: existing_gitlab_var
+      PRIVATE-TOKEN: "{{ lookup('env','GITLAB_API_TOKEN') }}"
+    method: GET
+  register: gitlab_var
   failed_when: false
   delegate_to: localhost
 
-- name: Debug GitLab kubeconfig value (if DEBUG=true)
-  debug:
-    msg: "Current GitLab var: {{ existing_gitlab_var.json.value }}"
-  when: lookup('env', 'DEBUG') == 'true' and existing_gitlab_var.status == 200
-
-- name: Push GitLab kubeconfig as project variable via GitLab API (only if changed)
+# 4. Mettre à jour uniquement si nécessaire
+- name: Upsert GitLab variable KUBECONFIG_GITLAB_B64
   uri:
-    url: "https://gitlab.com/api/v4/projects/{{ lookup('env', 'CI_PROJECT_ID') }}/variables/KUBECONFIG_GITLAB_B64"
-    method: PUT
+    url: "https://gitlab.com/api/v4/projects/{{ lookup('env','CI_PROJECT_ID') }}/variables/KUBECONFIG_GITLAB_B64"
+    method: "{{ 'PUT' if gitlab_var.status == 200 else 'POST' }}"
     headers:
-      PRIVATE-TOKEN: "{{ lookup('env', 'GITLAB_API_TOKEN') }}"
+      PRIVATE-TOKEN: "{{ lookup('env','GITLAB_API_TOKEN') }}"
     body_format: form-urlencoded
     body:
-      value: "{{ kubeconfig_gitlab_b64.stdout }}"
+      value: "{{ kubeconfig_gitlab_b64 }}"
       masked: "false"
       protected: "false"
-    status_code: 200
-  when: existing_gitlab_var.status != 200 or existing_gitlab_var.json.value != kubeconfig_gitlab_b64.stdout
+  when: gitlab_var.status != 200 or gitlab_var.json.value != kubeconfig_gitlab_b64
   delegate_to: localhost
