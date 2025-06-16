@@ -4,7 +4,7 @@
   when: lookup('env', 'GITLAB_API_TOKEN') is not defined
   delegate_to: localhost
 
-- name: Apply Gitlab CI ServiceAccount manifest (depuis le repo local)
+- name: Apply Gitlab CI ServiceAccount manifest
   kubernetes.core.k8s:
     state: present
     src: "{{ role_path }}/files/gitlab_sa.yaml"

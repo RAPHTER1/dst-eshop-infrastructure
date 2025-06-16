@@ -81,10 +81,35 @@
     state: link
   become: true
 
+- name: Ensure python3-pip is installed
+  apt:
+    name: python3-pip
+    state: present
+    update_cache: true
+  become: true
+
+- name: Ensure python3-setuptools is installed
+  apt:
+    name: python3-setuptools
+    state: present
+  become: true
+
+- name: Check if Python 'kubernetes' package is installed
+  command: python3 -m pip show kubernetes
+  register: kubernetes_lib_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Python 'kubernetes' package if missing
+  pip:
+    name: kubernetes
+    executable: pip3
+  when: kubernetes_lib_check.rc != 0
+  become: true
+
 - name: Include CI-specific tasks
   import_tasks: ci.yml
   when: lookup('env', 'CI') == 'true'
-
 
 
 # CI-specific tasks (GitLab push, kubeconfig, etc.) will be moved to a separate role
