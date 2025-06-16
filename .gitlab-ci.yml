@@ -40,7 +40,7 @@ before_script:
 
   # 3) Ajout du nœud Proxmox dans known_hosts (pour que le runner ne pose plus de question)
   - ssh-keyscan -p "$PROXMOX_HOST_PORT" "$PROXMOX_HOST_IP" >> ~/.ssh/known_hosts
-  - ssh-keyscan -p "$PROXMOX_HOST_PORT" "9101" >> ~/.ssh/known_hosts
+  - ssh-keyscan -p 9101 "$PROXMOX_HOST_IP" >> ~/.ssh/known_hosts
   - echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
   - chmod 600 ~/.ssh/config
 
