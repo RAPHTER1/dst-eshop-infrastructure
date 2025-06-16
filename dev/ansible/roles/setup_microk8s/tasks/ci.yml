@@ -48,7 +48,7 @@
       {{ lookup('template', role_path + '/templates/kubeconfig_gitlab.yml.j2',
                 k8s_api_public_url        = lookup('env','K8S_API_PUBLIC_URL'),
                 gitlab_ci_sa_token        = gitlab_ci_sa_token.stdout,
-                k8s_ca_crt_b64            = k8s_ca_cert_b64) }}
+                k8s_ca_cert_b64            = k8s_ca_cert_b64) }}
   delegate_to: localhost
 
 # 2. Encoder directement en base64
