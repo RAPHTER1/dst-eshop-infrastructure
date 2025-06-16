@@ -4,10 +4,16 @@
   when: lookup('env', 'GITLAB_API_TOKEN') is not defined
   delegate_to: localhost
 
-- name: Apply Gitlab CI ServiceAccount manifest
+- name: Copy manifest to target
+  copy:
+    src: gitlab_sa.yaml
+    dest: /tmp/gitlab_sa.yaml
+    mode: '0644'
+
+- name: Apply manifest with k8s module **from the target host**
   kubernetes.core.k8s:
     state: present
-    src: "{{ role_path }}/files/gitlab_sa.yaml"
+    src: /tmp/gitlab_sa.yaml
     kubeconfig: /home/ubuntu/.kube/config
     context: microk8s
   become: true
