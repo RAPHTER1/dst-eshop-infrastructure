@@ -1,6 +1,0 @@
----
-- name: Création de la VM
-  include_tasks: 01-create_vm.yml
-
-- name: Inclure la tâche de création de l'utilisateur Ansible
-  include_tasks: 02-create_ansible_user.yml
